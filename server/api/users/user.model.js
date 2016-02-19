@@ -18,6 +18,7 @@ var User = new mongoose.Schema({
 		type: String,
 		default: '/images/default-photo.jpg'
 	},
+	salt: String,
 	phone: String,
 	email: {
 		type: String,

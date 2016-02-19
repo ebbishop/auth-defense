@@ -1,11 +1,24 @@
 'use strict';
 
-var app = require('./app'),
-	db = require('./db');
+var   fs = require("fs"),
+      http = require('http'),
+      https = require("https");
 
-var port = 8080;
-var server = app.listen(port, function () {
-	console.log('HTTP server patiently listening on port', port);
-});
+var privateKey = fs.readFileSync('key.pem').toString();
+var certificate = fs.readFileSync('cert.pem').toString();
 
-module.exports = server;
+var credentials = {key: privateKey, cert: certificate};
+
+var app = require('./app');
+
+// var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+
+// httpServer.listen(8000);
+httpsServer.listen(8080);
+
+var db = require('./db');
+
+
+module.exports = httpsServer;

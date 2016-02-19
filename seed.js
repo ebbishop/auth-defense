@@ -13,6 +13,21 @@ var numStories = 500;
 
 var emails = chance.unique(chance.email, numUsers);
 
+var crypto = require('crypto');
+
+var getSalt = function() {
+	return crypto.randomBytes(16).toString('base64')
+}
+
+function hashPassword (password, salt) {
+	console.log(password, salt)
+	var iterations = 20;
+	var bytes = 64;
+	var buffer = crypto.pbkdf2Sync(password, salt, iterations, bytes);
+	var hash = buffer.toString('base64');
+	return hash;
+}
+
 function randPhoto () {
 	var g = chance.pick(['men', 'women']);
 	var n = chance.natural({
@@ -29,7 +44,8 @@ function randUser () {
 		phone: chance.phone(),
 		email: emails.pop(),
 		password: chance.word(),
-		isAdmin: chance.weighted([true, false], [5, 95])
+		isAdmin: chance.weighted([true, false], [5, 95]),
+		salt: getSalt()
 	});
 }
 
@@ -58,23 +74,31 @@ function randStory (allUsers) {
 	});
 }
 
-function generateAll () {
-	var users = _.times(numUsers, randUser);
-	users.push(new User({
+var zeke = new User({
 		name: 'Zeke Nierenberg',
 		photo: 'http://media.licdn.com/media/p/5/005/0ac/184/16505c6.jpg',
 		phone: '(510) 295-5523',
 		email: 'zeke@zeke.zeke',
+		salt: getSalt(),
 		password: '123',
 		isAdmin: true
-	}));
-	users.push(new User({
+});
+zeke.password = hashPassword(zeke.password, zeke.salt);
+
+var omri = new User({
 		name: 'Omri Bernstein',
 		photo: 'http://i.zemanta.com/278070129_80_80.jpg',
 		phone: '(781) 854-8854',
 		email: 'omri@zeke.zeke',
+		salt: getSalt(),
 		password: '123'
-	}));
+	})
+omri.password = hashPassword(omri.password, omri.salt);
+
+function generateAll () {
+	var users = _.times(numUsers, randUser);
+	users.push(zeke);
+	users.push(omri);
 	var stories = _.times(numStories, function () {
 		return randStory(users);
 	});
