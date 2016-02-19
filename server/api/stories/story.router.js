@@ -44,15 +44,21 @@ router.get('/:id', function (req, res, next) {
 });
 
 router.put('/:id', function (req, res, next) {
-	_.extend(req.story, req.body);
-	req.story.save()
-	.then(function (story) {
-		res.json(story);
-	})
-	.then(null, next);
+	if(req.user._id == req.story.author || req.user.isAdmin){
+		_.extend(req.story, req.body);
+		req.story.save()
+		.then(function (story) {
+			res.json(story);
+		})
+		.then(null, next);
+	}else{
+		res.status(403).send('Goaway');
+	}
+
 });
 
 router.delete('/:id', function (req, res, next) {
+	if(!req.user.isAdmin){ res.send('YOU MAY NOT DELETE') }
 	req.story.remove()
 	.then(function () {
 		res.status(204).end();

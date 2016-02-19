@@ -10,6 +10,7 @@ router.post('/login', function (req, res, next) {
 	.then(function (user) {
 		if (!user) throw HttpError(401);
 		req.login(user, function () {
+			console.log(req.user);
 			res.json(user);
 		});
 	})
@@ -20,6 +21,7 @@ router.post('/signup', function (req, res, next) {
 	User.create(req.body)
 	.then(function (user) {
 		req.login(user, function () {
+			console.log(req.user);
 			res.status(201).json(user);
 		});
 	})
